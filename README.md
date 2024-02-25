@@ -20,7 +20,7 @@ Focus Flip is a dynamic web-based game that tests your focus and agility. It is 
 
 ## Usage
 
-You can simply download or clone this repository and open the `index.html` file in your web browser to play the game. No additional installations or dependencies are required.
+You can simply download or clone this repository and open the `focus_flip.html` file in your web browser to play the game. No additional installations or dependencies are required.
 
 ## Contributing
 
