@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Flip</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        #big-number {
+            font-size: 48px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        #table {
+            display: grid;
+            grid-template-columns: repeat(5, 50px);
+            grid-template-rows: repeat(5, 50px);
+            gap: 4px;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: inline-block;
+            border: 1px solid #ccc;
+            font-size: 20px;
+            line-height: 50px;
+            margin: 2px;
+            cursor: pointer;
+            background-color: #f0f0f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .cell:hover {
+            background-color: #e0e0e0;
+        }
+
+        .selected {
+            background-color: orange; 
+            color: #fff;
+        }
+
+        .correct {
+            background-color: #4caf50; 
+            color: #fff;
+        }
+
+        #time-taken {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        #completion-message {
+            text-align: center;
+            color:black;
+            font-weight: bold;
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Focus Flip</h2>
+        <div id="big-number"></div>
+        <div id="table"></div>
+        <button onclick="shuffle()">Shuffle</button>
+        <p id="time-taken"></p>
+        <p id="completion-message" style="display: none;"></p>
+    </div>
+
+    <script>
+        let size = 5;
+        let numbers = Array.from({length: size * size}, (_, i) => i + 1);
+        let shuffledNumbers = [];
+        let startTime, timerInterval;
+        let currentNumber = 1;
+        let clickedNumbers = [];
+
+        function generateTable() {
+            const table = document.getElementById('table');
+            table.innerHTML = '';
+            for (let i = 0; i < size * size; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.textContent = shuffledNumbers[i];
+                cell.addEventListener('click', () => handleClick(cell));
+                table.appendChild(cell);
+            }
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function shuffle() {
+            numbers = Array.from({length: size * size}, (_, i) => i + 1);
+            shuffledNumbers = shuffleArray(numbers);
+            generateTable();
+            const randomNumber = getRandomNumber();
+            document.getElementById('big-number').textContent = randomNumber;
+            document.getElementById('time-taken').textContent = '';
+            document.getElementById('completion-message').style.display = 'none';
+            startTime = new Date();
+            clearInterval(timerInterval);
+            timerInterval = setInterval(updateTimer, 1000);
+            currentNumber = randomNumber;
+            clickedNumbers = [];
+        }
+
+        function getRandomNumber() {
+            let randomNumber;
+            const availableNumbers = numbers.filter(number => !clickedNumbers.includes(number));
+            if (availableNumbers.length === 0) {
+                return null;
+            }
+            randomNumber = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+            return randomNumber;
+        }
+
+        function updateTimer() {
+            const currentTime = new Date();
+            const elapsedTime = Math.floor((currentTime - startTime) / 1000);
+            document.getElementById('time-taken').textContent = `Time taken: ${elapsedTime} seconds`;
+        }
+
+        function handleClick(cell) {
+            const clickedNumber = parseInt(cell.textContent);
+            if (clickedNumber === currentNumber) {
+                cell.classList.add('selected');
+                currentNumber++;
+                clickedNumbers.push(clickedNumber);
+                if (clickedNumbers.length === size * size) {
+                    clearInterval(timerInterval);
+                    document.getElementById('completion-message').style.display = 'block';
+                    const elapsedTime = Math.floor((new Date() - startTime) / 1000);
+                    document.getElementById('completion-message').textContent = `Congratulations! You completed all numbers in ${elapsedTime} seconds. Try again with focus!`;
+                }
+                const randomNumber = getRandomNumber();
+                document.getElementById('big-number').textContent = randomNumber;
+                currentNumber = randomNumber;
+            } else {
+                document.getElementById('big-number').textContent = `Wrong Number! Correct number is ${currentNumber}`;
+                cell.classList.add('correct');
+            }
+        }
+
+        window.onload = function() {
+            shuffle();
+        };
+    </script>
+</body>
+</html>
